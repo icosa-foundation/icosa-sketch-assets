@@ -21,12 +21,12 @@ uniform vec4 u_ambient_light_color;
 uniform vec4 u_SceneLight_0_color;
 uniform vec4 u_SceneLight_1_color;
 
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec3 v_position;
-varying vec3 v_light_dir_0;
-varying vec3 v_light_dir_1;
-varying vec2 v_texcoord0;
+out vec4 v_color;
+out vec3 v_normal;
+out vec3 v_position;
+out vec3 v_light_dir_0;
+out vec3 v_light_dir_1;
+out vec2 v_texcoord0;
 
 // Copyright 2020 The Tilt Brush Authors
 //

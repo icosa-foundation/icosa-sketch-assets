@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +15,13 @@
 
 precision mediump float;
 
+out vec4 fragColor;
+
 uniform float u_EmissionGain;
 uniform sampler2D u_MainTex;
 
-varying vec4 v_color;
-varying vec2 v_texcoord0;
+in vec4 v_color;
+in vec2 v_texcoord0;
 
 // TODO: This should be pulled into the vertex shader for performance.
 vec4 bloomColor(vec4 color, float gain) {
@@ -38,6 +41,6 @@ vec4 bloomColor(vec4 color, float gain) {
 }
 
 void main() {
-  float brush_mask = texture2D(u_MainTex, v_texcoord0).w;
-    gl_FragColor = brush_mask * bloomColor(v_color, u_EmissionGain);
+  float brush_mask = texture(u_MainTex, v_texcoord0).w;
+    fragColor = brush_mask * bloomColor(v_color, u_EmissionGain);
 }

@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,13 +18,15 @@
 
 precision mediump float;
 
-varying vec4 v_color;
-varying vec2 v_texcoord0;
+out vec4 fragColor;
+
+in vec4 v_color;
+in vec2 v_texcoord0;
 
 uniform vec4 u_TintColor;
 
 uniform sampler2D u_MainTex;
 
 void main() {
-  gl_FragColor = v_color * u_TintColor * texture2D(u_MainTex, v_texcoord0).w;
+  fragColor = v_color * u_TintColor * texture(u_MainTex, v_texcoord0).w;
 }

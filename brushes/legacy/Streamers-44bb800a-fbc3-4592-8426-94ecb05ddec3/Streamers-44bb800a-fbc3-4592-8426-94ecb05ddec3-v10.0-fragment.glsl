@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +15,10 @@
 
 precision mediump float;
 
-varying vec4 v_color;
-varying vec2 v_texcoord0;
+out vec4 fragColor;
+
+in vec4 v_color;
+in vec2 v_texcoord0;
 
 uniform sampler2D u_MainTex;
 uniform vec4 u_TintColor;
@@ -42,7 +45,7 @@ void main() {
 	uvs.x -= u_time.y * (1.0 + mod(row_id * 1.61803398875, 1.0) - 0.5);
 
 	// Sample final texture
-	vec4 tex = texture2D(u_MainTex, uvs);
+	vec4 tex = texture(u_MainTex, uvs);
 
 	// Boost hot spot in texture
 	tex += pow(tex, vec4(2.0,2.0,2.0,2.0)) * 55.0;
@@ -54,6 +57,6 @@ void main() {
 	tex *= 1.0 - mod(uvs.y,1.0); // bottom edg
 
 	vec4 color = v_color * tex * exp(u_EmissionGain * 5.0);
-	gl_FragColor = vec4(color.rgb * color.a,1.0);
+	fragColor = vec4(color.rgb * color.a,1.0);
 
 }

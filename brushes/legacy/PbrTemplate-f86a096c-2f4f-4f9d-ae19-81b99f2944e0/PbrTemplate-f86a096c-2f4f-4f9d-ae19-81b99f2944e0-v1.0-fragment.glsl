@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#extension GL_OES_standard_derivatives : enable
 // Brush-specific shader for GlTF web preview, based on General generator
 // with parameters lit=1, a=0.5.
 
 precision mediump float;
+
+out vec4 fragColor;
 
 uniform vec4 u_ambient_light_color;
 uniform vec4 u_SceneLight_0_color;
@@ -28,12 +30,12 @@ uniform float u_MetallicFactor;
 uniform float u_RoughnessFactor;
 float kCutoff = 0.01;
 
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec3 v_position;
-varying vec3 v_light_dir_0;
-varying vec3 v_light_dir_1;
-varying vec2 v_texcoord0;
+in vec4 v_color;
+in vec3 v_normal;
+in vec3 v_position;
+in vec3 v_light_dir_0;
+in vec3 v_light_dir_1;
+in vec2 v_texcoord0;
 
 float dispAmount = .00009;
 
@@ -54,7 +56,7 @@ float dispAmount = .00009;
 // Fogging support
 uniform vec3 u_fogColor;
 uniform float u_fogDensity;
-varying float f_fog_coord;
+in float f_fog_coord;
 
 // This fog function emulates the exponential fog used in Tilt Brush
 //
@@ -103,11 +105,6 @@ vec3 ApplyFog(vec3 color) {
 // ---------------------------------------------------------------------------------------------- //
 // Tangent-less normal maps (derivative maps)
 // ---------------------------------------------------------------------------------------------- //
-#ifndef GL_OES_standard_derivatives
-vec3 PerturbNormal(vec3 position, vec3 normal, vec2 uv) {
-	return normal;
-}
-#else
 uniform sampler2D u_BumpMap;
 uniform vec4 u_BumpMap_TexelSize;
 
@@ -149,9 +146,9 @@ vec3 PerturbNormal(vec3 position, vec3 normal, vec2 uv)
   vec2 STlr = uv + d * texDx;
   vec2 STul = uv + d * texDy;
 
-  highp float Hll = texture2D(u_BumpMap, STll).x;
-  highp float Hlr = texture2D(u_BumpMap, STlr).x;
-  highp float Hul = texture2D(u_BumpMap, STul).x;
+  highp float Hll = texture(u_BumpMap, STll).x;
+  highp float Hlr = texture(u_BumpMap, STlr).x;
+  highp float Hul = texture(u_BumpMap, STul).x;
 
   Hll = mix(Hll, 1. - Hll, float(!gl_FrontFacing)) * dispAmount;
   Hlr = mix(Hlr, 1. - Hlr, float(!gl_FrontFacing)) * dispAmount;
@@ -363,10 +360,10 @@ vec3 computeLighting(vec3 normal, vec3 albedo) {
 }
 
 void main() {
-  vec4 baseColorTex = texture2D(u_BaseColorTex, v_texcoord0);
+  vec4 baseColorTex = texture(u_BaseColorTex, v_texcoord0);
   vec3 albedo = baseColorTex.rgb * u_BaseColorFactor.rgb * v_color.rgb;
   float mask = baseColorTex.a * u_BaseColorFactor.a * v_color.a;
 
-  gl_FragColor.rgb = ApplyFog(computeLighting(v_normal, albedo));
-  gl_FragColor.a = mask;
+  fragColor.rgb = ApplyFog(computeLighting(v_normal, albedo));
+  fragColor.a = mask;
 }

@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,22 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#extension GL_OES_standard_derivatives : enable
 // Brush-specific shader for GlTF web preview, based on General generator
 // with parameters lit=1, a=0.5.
 
 precision mediump float;
 
+out vec4 fragColor;
+
 uniform vec4 u_ambient_light_color;
 uniform vec4 u_SceneLight_0_color;
 uniform vec4 u_SceneLight_1_color;
 
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec3 v_position;
-varying vec3 v_light_dir_0;
-varying vec3 v_light_dir_1;
-varying vec2 v_texcoord0;
+in vec4 v_color;
+in vec3 v_normal;
+in vec3 v_position;
+in vec3 v_light_dir_0;
+in vec3 v_light_dir_1;
+in vec2 v_texcoord0;
 
 uniform sampler2D u_MainTex;
 uniform float u_Cutoff;
@@ -49,7 +51,7 @@ uniform float u_Cutoff;
 // Fogging support
 uniform vec3 u_fogColor;
 uniform float u_fogDensity;
-varying float f_fog_coord;
+in float f_fog_coord;
 
 // This fog function emulates the exponential fog used in Tilt Brush
 //
@@ -277,6 +279,6 @@ vec3 computeLighting() {
 }
 
 void main() {
-    gl_FragColor.rgb = ApplyFog(computeLighting());
-    gl_FragColor.a = 1.0;
+    fragColor.rgb = ApplyFog(computeLighting());
+    fragColor.a = 1.0;
 }

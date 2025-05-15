@@ -16,9 +16,9 @@
 // Unlit.glsl
 precision mediump float;
 
-varying vec4 v_color;
-varying vec2 v_texcoord0;
-varying vec3 v_position;
+out vec4 v_color;
+out vec2 v_texcoord0;
+out vec3 v_position;
 
 #if TB_HAS_ALPHA_CUTOFF
 uniform sampler2D u_MainTex;

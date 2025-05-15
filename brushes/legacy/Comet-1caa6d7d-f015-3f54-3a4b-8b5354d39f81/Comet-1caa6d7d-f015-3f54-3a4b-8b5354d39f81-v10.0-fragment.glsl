@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +15,8 @@
 
 precision mediump float;
 
+out vec4 fragColor;
+
 uniform float u_Speed;
 uniform float u_EmissionGain;
 uniform sampler2D u_MainTex;
@@ -21,8 +24,8 @@ uniform sampler2D u_AlphaMask;
 uniform vec4 u_AlphaMask_TexelSize;
 uniform vec4 u_time;
 
-varying vec4 v_color;
-varying vec2 v_texcoord0;
+in vec4 v_color;
+in vec2 v_texcoord0;
 
 void main() {
   // Set up some staggered scrolling for "fire" effect
@@ -38,9 +41,9 @@ void main() {
   // Each channel has its own tileable pattern which we want to scroll against one another
   // at different rates. We pack 'em into channels because it's more performant than
   // using 3 different texture lookups.
-  float r = texture2D(u_MainTex, scrollUV).r;
-  float g = texture2D(u_MainTex, scrollUV2).g;
-  float b = texture2D(u_MainTex, scrollUV3).b;
+  float r = texture(u_MainTex, scrollUV).r;
+  float g = texture(u_MainTex, scrollUV2).g;
+  float b = texture(u_MainTex, scrollUV3).b;
 
   // Combine all channels
   float gradient_lookup_value = (r + g + b) / 3.0;
@@ -53,9 +56,9 @@ void main() {
   //       match Unity texture wrap mode.
   float gutter = u_AlphaMask_TexelSize.x * .5;
   float u = clamp(gradient_lookup_value + falloff, 0.0 + gutter, 1.0 - gutter);
-  vec4 tex = texture2D(u_AlphaMask, vec2(u, 0.0));
+  vec4 tex = texture(u_AlphaMask, vec2(u, 0.0));
 
-  gl_FragColor.rgb = (tex * v_color).rgb;
-  gl_FragColor.a = 1.0;
+  fragColor.rgb = (tex * v_color).rgb;
+  fragColor.a = 1.0;
 }
 

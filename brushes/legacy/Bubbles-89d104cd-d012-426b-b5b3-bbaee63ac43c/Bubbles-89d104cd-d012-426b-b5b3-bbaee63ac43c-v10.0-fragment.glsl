@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,17 +15,19 @@
 
 precision mediump float;
 
-varying vec4 v_color;
-varying vec2 v_texcoord0;
+out vec4 fragColor;
+
+in vec4 v_color;
+in vec2 v_texcoord0;
 uniform sampler2D u_MainTex;
 
 void main() {
-  vec4 tex = texture2D(u_MainTex, v_texcoord0);
+  vec4 tex = texture(u_MainTex, v_texcoord0);
   vec3 basecolor = v_color.rgb * tex.rgb;
   				
   // Alpha channel of the texture is not affected by color.  It is the fake "highlight" bubble effect.
   vec3 highlightcolor = tex.aaa;
 
-  gl_FragColor.rgb = basecolor + highlightcolor;
-  gl_FragColor.a = 1.0;
+  fragColor.rgb = basecolor + highlightcolor;
+  fragColor.a = 1.0;
 }

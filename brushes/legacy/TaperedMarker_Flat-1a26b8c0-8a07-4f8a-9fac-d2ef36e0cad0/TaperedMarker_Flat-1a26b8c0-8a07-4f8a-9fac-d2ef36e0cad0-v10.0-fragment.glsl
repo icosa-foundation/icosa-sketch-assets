@@ -1,3 +1,6 @@
+// Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
+
 #define TB_ALPHA_CUTOFF 0.5
 #define TB_HAS_ALPHA_CUTOFF 1
 // Copyright 2020 The Tilt Brush Authors
@@ -31,16 +34,18 @@
 // Diffuse.glsl
 precision mediump float;
 
+out vec4 fragColor;
+
 uniform vec4 u_ambient_light_color;
 uniform vec4 u_SceneLight_0_color;
 uniform vec4 u_SceneLight_1_color;
 
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec3 v_position;
-varying vec3 v_light_dir_0;
-varying vec3 v_light_dir_1;
-varying vec2 v_texcoord0;
+in vec4 v_color;
+in vec3 v_normal;
+in vec3 v_position;
+in vec3 v_light_dir_0;
+in vec3 v_light_dir_1;
+in vec2 v_texcoord0;
 
 // Copyright 2020 The Tilt Brush Authors
 //
@@ -243,7 +248,7 @@ uniform sampler2D u_MainTex;
 // Fogging support
 uniform vec3 u_fogColor;
 uniform float u_fogDensity;
-varying float f_fog_coord;
+in float f_fog_coord;
 
 // This fog function emulates the exponential fog used in Tilt Brush
 //
@@ -294,15 +299,15 @@ vec3 computeLighting() {
 void main() {
 #if TB_HAS_ALPHA_CUTOFF
   const float alpha_threshold = TB_ALPHA_CUTOFF;
-  float brush_mask = texture2D(u_MainTex, v_texcoord0).w;
+  float brush_mask = texture(u_MainTex, v_texcoord0).w;
   if (brush_mask > alpha_threshold) {
-    gl_FragColor.rgb = computeLighting();
-    gl_FragColor.a = 1.0;
+    fragColor.rgb = computeLighting();
+    fragColor.a = 1.0;
   } else {
     discard;
   }
 #else
-  gl_FragColor.rgb = ApplyFog(computeLighting());
-  gl_FragColor.a = 1.0;
+  fragColor.rgb = ApplyFog(computeLighting());
+  fragColor.a = 1.0;
 #endif
 }

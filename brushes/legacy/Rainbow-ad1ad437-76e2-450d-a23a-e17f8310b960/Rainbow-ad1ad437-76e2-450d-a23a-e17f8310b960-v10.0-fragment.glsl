@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,11 +17,13 @@
 
 precision mediump float;
 
+out vec4 fragColor;
+
 uniform sampler2D u_MainTex;
 uniform vec4 u_time;
 uniform float u_EmissionGain;
-varying vec4 v_color;
-varying vec2 v_texcoord0;
+in vec4 v_color;
+in vec2 v_texcoord0;
 
 vec4 GetRainbowColor( vec2 texcoord)
 {
@@ -61,6 +64,6 @@ void main() {
   vec4 tex =  GetRainbowColor(v_texcoord0.xy);
   tex = color * tex * exp(u_EmissionGain * 3.0);
   
-  gl_FragColor = tex * tex.a;
+  fragColor = tex * tex.a;
  
 }

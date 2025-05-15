@@ -18,8 +18,8 @@ precision mediump float;
 
 uniform sampler2D u_MainTex;
 
-varying vec4 v_color;
-varying vec2 v_texcoord0;
+out vec4 v_color;
+out vec2 v_texcoord0;
 
 vec4 bloomColor(vec4 color, float gain) {
   // Guarantee that there's at least a little bit of all 3 channels.

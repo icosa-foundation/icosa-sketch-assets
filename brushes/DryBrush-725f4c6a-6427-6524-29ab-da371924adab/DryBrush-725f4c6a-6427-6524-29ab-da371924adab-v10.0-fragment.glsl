@@ -23,12 +23,12 @@ uniform vec4 u_SceneLight_1_color;
 uniform float u_Shininess;   // Should be in [0.0, 1.0].
 uniform vec3 u_SpecColor;
 
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec3 v_position;
-varying vec3 v_light_dir_0;
-varying vec3 v_light_dir_1;
-varying vec2 v_texcoord0;
+out vec4 v_color;
+out vec3 v_normal;
+out vec3 v_position;
+out vec3 v_light_dir_0;
+out vec3 v_light_dir_1;
+out vec2 v_texcoord0;
 
 #if TB_HAS_ALPHA_CUTOFF
 uniform sampler2D u_MainTex;

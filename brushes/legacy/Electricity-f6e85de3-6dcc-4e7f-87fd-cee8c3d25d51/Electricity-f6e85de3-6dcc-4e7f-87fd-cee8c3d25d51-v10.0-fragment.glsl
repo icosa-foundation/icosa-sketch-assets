@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,10 +18,12 @@
 
 precision mediump float;
 
+out vec4 fragColor;
+
 uniform float u_EmissionGain;
 
-varying vec4 v_color;
-varying vec2 v_texcoord0;
+in vec4 v_color;
+in vec2 v_texcoord0;
 
 vec4 bloomColor(vec4 color, float gain) {
   // Guarantee that there's at least a little bit of all 3 channels.
@@ -42,5 +45,5 @@ void main() {
   vec4 color = bloomColor(v_color, u_EmissionGain);
   float procedural = ( abs(v_texcoord0.y - 0.5) < .2 ) ? 2. : 0.;
   vec4 c = color + color * procedural;
-  gl_FragColor = c * c.a;
+  fragColor = c * c.a;
 }

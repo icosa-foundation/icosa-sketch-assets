@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,10 +12,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#extension GL_OES_standard_derivatives : enable
-
 precision mediump float;
+
+out vec4 fragColor;
 
 uniform vec4 u_ambient_light_color;
 uniform vec4 u_SceneLight_0_color;
@@ -26,13 +26,13 @@ uniform vec4 u_Color;
 uniform float u_Frequency;
 uniform float u_Jitter;
 
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec3 v_position;
-varying vec3 v_local_position;
-varying vec3 v_light_dir_0;
-varying vec3 v_light_dir_1;
-varying vec2 v_texcoord0;
+in vec4 v_color;
+in vec3 v_normal;
+in vec3 v_position;
+in vec3 v_local_position;
+in vec3 v_light_dir_0;
+in vec3 v_light_dir_1;
+in vec2 v_texcoord0;
 
 // Copyright 2020 The Tilt Brush Authors
 //
@@ -328,6 +328,6 @@ vec3 computeGemReflection() {
 }
 
 void main() {
-    gl_FragColor.rgb = computeGemReflection();
-    gl_FragColor.a = 1.0;
+    fragColor.rgb = computeGemReflection();
+    fragColor.a = 1.0;
 }

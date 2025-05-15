@@ -1,4 +1,6 @@
+
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +18,14 @@
 
 precision mediump float;
 
+out vec4 fragColor;
+
 uniform sampler2D u_MainTex;
 uniform vec4 u_time;
 uniform float u_EmissionGain;
 
-varying vec4 v_color;
-varying vec2 v_texcoord0;
+in vec4 v_color;
+in vec2 v_texcoord0;
 
 
 vec4 bloomColor(vec4 color, float gain) {
@@ -49,9 +53,9 @@ void main() {
   // Should be done in vertex shader
   vec4 bloomed_v_color = bloomColor(v_color, u_EmissionGain);
 
-  float displacement = texture2D(u_MainTex, v_texcoord0.xy + vec2(-_Time.x * _Scroll1, 0.0)  ).a; 
-  vec4 tex = texture2D(u_MainTex, v_texcoord0.xy + vec2(-_Time.x * _Scroll2, 0) - displacement * _DisplacementIntensity);
+  float displacement = texture(u_MainTex, v_texcoord0.xy + vec2(-_Time.x * _Scroll1, 0.0)  ).a; 
+  vec4 tex = texture(u_MainTex, v_texcoord0.xy + vec2(-_Time.x * _Scroll2, 0) - displacement * _DisplacementIntensity);
 
-  gl_FragColor = bloomed_v_color * tex;
- // gl_FragColor = vec4(gl_FragColor.rgb * gl_FragColor.a * 5.0, tex.a);
+  fragColor = bloomed_v_color * tex;
+ // fragColor = vec4(fragColor.rgb * fragColor.a * 5.0, tex.a);
 }

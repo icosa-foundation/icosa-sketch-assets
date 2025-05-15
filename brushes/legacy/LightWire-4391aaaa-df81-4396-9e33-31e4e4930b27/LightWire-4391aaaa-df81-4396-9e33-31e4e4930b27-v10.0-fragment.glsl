@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +15,8 @@
 
 precision mediump float;
 
+out vec4 fragColor;
+
 uniform vec4 u_ambient_light_color;
 uniform vec4 u_SceneLight_0_color;
 uniform vec4 u_SceneLight_1_color;
@@ -21,12 +24,12 @@ uniform float u_Shininess;   // Should be in [0.0, 1.0].
 uniform vec3 u_SpecColor;
 uniform vec4 u_time;
 
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec3 v_position;
-varying vec3 v_light_dir_0;
-varying vec3 v_light_dir_1;
-varying vec2 v_texcoord0;
+in vec4 v_color;
+in vec3 v_normal;
+in vec3 v_position;
+in vec3 v_light_dir_0;
+in vec3 v_light_dir_1;
+in vec2 v_texcoord0;
 
 // Copyright 2020 The Tilt Brush Authors
 //
@@ -45,7 +48,7 @@ varying vec2 v_texcoord0;
 // Fogging support
 uniform vec3 u_fogColor;
 uniform float u_fogDensity;
-varying float f_fog_coord;
+in float f_fog_coord;
 
 // This fog function emulates the exponential fog used in Tilt Brush
 //
@@ -317,10 +320,10 @@ void main() {
   diffuseColor *= border;
   specularColor *= border;
   
-  gl_FragColor.rgb = computeLighting(diffuseColor, specularColor, smoothness);
-  gl_FragColor.a = 1.0;
+  fragColor.rgb = computeLighting(diffuseColor, specularColor, smoothness);
+  fragColor.a = 1.0;
 
   // Emission
-  gl_FragColor.rgb += lights * color.rgb;
-  gl_FragColor.rgb = ApplyFog(gl_FragColor.rgb);
+  fragColor.rgb += lights * color.rgb;
+  fragColor.rgb = ApplyFog(fragColor.rgb);
 }

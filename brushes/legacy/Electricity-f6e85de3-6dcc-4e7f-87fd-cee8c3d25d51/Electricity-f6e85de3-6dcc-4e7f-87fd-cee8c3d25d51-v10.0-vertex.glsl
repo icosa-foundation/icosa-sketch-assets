@@ -1,4 +1,5 @@
 // Copyright 2020 The Tilt Brush Authors
+// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,16 +18,16 @@
 // This shader is used as a fall-back when a brush-specific shader is
 // unavailable.
 
-attribute vec4 a_position;
-attribute vec3 a_normal;
-attribute vec4 a_color;
-attribute vec2 a_texcoord0;
-attribute vec3 a_texcoord1;
+in vec4 a_position;
+in vec3 a_normal;
+in vec4 a_color;
+in vec2 a_texcoord0;
+in vec3 a_texcoord1;
 
-varying vec4 v_color;
-varying vec3 v_normal;  // Camera-space normal.
-varying vec3 v_position;  // Camera-space position.
-varying vec2 v_texcoord0;
+out vec4 v_color;
+out vec3 v_normal;  // Camera-space normal.
+out vec3 v_position;  // Camera-space position.
+out vec2 v_texcoord0;
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
