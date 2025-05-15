@@ -39,5 +39,5 @@ vec4 bloomColor(vec4 color, float gain) {
 void main() {
   const float emission_gain = TB_EMISSION_GAIN;
   float brush_mask = texture2D(u_MainTex, v_texcoord0).w;
-  gl_FragColor = brush_mask * bloomColor(v_color, emission_gain);
+  v_color = brush_mask * bloomColor(v_color, emission_gain);
 }

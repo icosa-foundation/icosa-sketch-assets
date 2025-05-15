@@ -80,13 +80,13 @@ void main() {
   const float alpha_threshold = TB_ALPHA_CUTOFF;
   float brush_mask = texture2D(u_MainTex, v_texcoord0).w;
   if (brush_mask > alpha_threshold) {
-    gl_FragColor.rgb = ApplyFog(computeLighting());
-    gl_FragColor.a = 1.0;
+    v_color.rgb = ApplyFog(computeLighting());
+    v_color.a = 1.0;
   } else {
     discard;
   }
 #else
-  gl_FragColor.rgb = ApplyFog(computeLighting());
-  gl_FragColor.a = 1.0;
+  v_color.rgb = ApplyFog(computeLighting());
+  v_color.a = 1.0;
 #endif
 }

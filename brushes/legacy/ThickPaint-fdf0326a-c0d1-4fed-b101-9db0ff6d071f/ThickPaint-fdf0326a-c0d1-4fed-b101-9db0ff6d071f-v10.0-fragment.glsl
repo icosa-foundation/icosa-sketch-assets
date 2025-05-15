@@ -370,8 +370,8 @@ void main() {
 
   // Unfortunately, the compiler keeps optimizing the call to PerturbNormal into the branch below, 
   // causing issues on some hardware/drivers. So we compute lighting just to discard it later.
-  gl_FragColor.rgb = ApplyFog(computeLighting(normal));
-  gl_FragColor.a = 1.0;
+  v_color.rgb = ApplyFog(computeLighting(normal));
+  v_color.a = 1.0;
 
   // This must come last to ensure PerturbNormal is called uniformly for all invocations.
   if (brush_mask <= u_Cutoff) {
