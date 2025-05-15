@@ -230,7 +230,7 @@ vec3 LambertShader(
 // Fogging support
 uniform vec3 u_fogColor;
 uniform float u_fogDensity;
-varying float f_fog_coord;
+out float f_fog_coord;
 
 // This fog function emulates the exponential fog used in Tilt Brush
 //

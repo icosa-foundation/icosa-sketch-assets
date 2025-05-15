@@ -24,7 +24,7 @@ out vec3 v_position;  // Camera-space position.
 out vec2 v_texcoord0;
 out vec3 v_light_dir_0;  // Camera-space light direction, main light.
 out vec3 v_light_dir_1;  // Camera-space light direction, other light.
-varying float f_fog_coord;
+out float f_fog_coord;
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
