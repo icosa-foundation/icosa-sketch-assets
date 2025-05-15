@@ -149,9 +149,9 @@ vec3 PerturbNormal(vec3 position, vec3 normal, vec2 uv)
   vec2 STlr = uv + d * texDx;
   vec2 STul = uv + d * texDy;
 
-  highp float Hll = texture2D(u_BumpMap, STll).x;
-  highp float Hlr = texture2D(u_BumpMap, STlr).x;
-  highp float Hul = texture2D(u_BumpMap, STul).x;
+  highp float Hll = texture(u_BumpMap, STll).x;
+  highp float Hlr = texture(u_BumpMap, STlr).x;
+  highp float Hul = texture(u_BumpMap, STul).x;
 
   Hll = mix(Hll, 1. - Hll, float(!gl_FrontFacing)) * dispAmount;
   Hlr = mix(Hlr, 1. - Hlr, float(!gl_FrontFacing)) * dispAmount;
@@ -362,7 +362,7 @@ vec3 computeLighting(vec3 normal) {
 }
 
 void main() {
-  float brush_mask = texture2D(u_MainTex, v_texcoord0).w;
+  float brush_mask = texture(u_MainTex, v_texcoord0).w;
   brush_mask *= v_color.w;
 
   // WARNING: PerturbNormal uses derivatives and must not be called conditionally.

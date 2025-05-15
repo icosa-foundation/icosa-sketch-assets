@@ -284,7 +284,7 @@ vec3 computeLighting() {
 void main() {
 #if TB_HAS_ALPHA_CUTOFF
   const float alpha_threshold = TB_ALPHA_CUTOFF;
-  float brush_mask = texture2D(u_MainTex, v_texcoord0).w;
+  float brush_mask = texture(u_MainTex, v_texcoord0).w;
   if (brush_mask > alpha_threshold) {
     v_color.rgb = ApplyFog(computeLighting());
     v_color.a = 1.0;

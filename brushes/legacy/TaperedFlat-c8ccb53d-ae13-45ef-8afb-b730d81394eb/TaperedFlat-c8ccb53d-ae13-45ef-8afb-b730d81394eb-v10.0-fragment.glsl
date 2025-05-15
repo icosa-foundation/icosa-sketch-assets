@@ -277,7 +277,7 @@ vec3 computeLighting() {
 }
 
 void main() {
-  float brush_mask = texture2D(u_MainTex, v_texcoord0).w;
+  float brush_mask = texture(u_MainTex, v_texcoord0).w;
   if (brush_mask > u_Cutoff) {
     v_color.rgb = ApplyFog(computeLighting());
     v_color.a = 1.0;
