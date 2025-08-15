@@ -1,5 +1,4 @@
 // Copyright 2020 The Tilt Brush Authors
-// Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,22 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Wireframe fragment shader (GLSL 3.0)
-precision mediump float;
+// Slice vertex shader
+in vec4 a_position;
+in vec3 a_texcoord0;
 
-out vec4 fragColor;
+out vec3 v_texcoord0;
 
-in vec4 v_color;
-in vec2 v_texcoord0;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
 
 void main() {
-  // Wrap UVs into [0,1] to match Unity behavior if data isn’t normalized
-  vec2 uv = fract(v_texcoord0);
-
-  // Edge mask in UV space: two lines across center forming a grid
-  float w = 0.0;
-  w = (abs(uv.x - 0.5) > 0.45) ? 1.0 : 0.0;
-  w += (abs(uv.y - 0.5) > 0.45) ? 1.0 : 0.0;
-
-  fragColor = v_color * w;
+  gl_Position = projectionMatrix * modelViewMatrix * a_position;
+  v_texcoord0 = a_texcoord0;
 }
