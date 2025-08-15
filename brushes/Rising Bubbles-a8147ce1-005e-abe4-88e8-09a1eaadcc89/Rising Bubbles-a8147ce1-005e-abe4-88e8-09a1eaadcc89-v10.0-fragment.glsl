@@ -19,33 +19,15 @@ out vec4 fragColor;
 
 in vec4 v_color;
 in vec2 v_texcoord0;
-
 uniform sampler2D u_MainTex;
-uniform float u_ScrollRate;
-uniform vec4 u_ScrollDistance; // Only x used here for UV domain scaling
-uniform float u_ScrollJitterIntensity;
-uniform float u_ScrollJitterFrequency;
-uniform vec4 u_time; // Use y component for time, matching Unity _Time.y
 
 void main() {
-  // Time in [0,1] with seed from vertex alpha (Unity uses color.a)
-  float seed = v_color.a;
-  float t01 = fract(u_time.y * u_ScrollRate + seed * 10.0);
-
-  // Scroll along U; wrap to [0,1]
-  float u = fract(v_texcoord0.x - t01);
-  float v = v_texcoord0.y;
-
-  // Sample texture at scrolled coords
-  vec4 tex = texture(u_MainTex, vec2(u, v));
-
-  // RGB affected by color; alpha channel contributes a highlight
+  vec4 tex = texture(u_MainTex, v_texcoord0);
   vec3 basecolor = v_color.rgb * tex.rgb;
-  vec3 highlightcolor = vec3(tex.a);
 
-  // Dim over lifetime (toward end)
-  float dim = pow(1.0 - t01, 1.0) * 5.0;
-  vec3 rgb = (basecolor + highlightcolor) * dim;
+  // Alpha channel of the texture is not affected by color.  It is the fake "highlight" bubble effect.
+  vec3 highlightcolor = tex.aaa;
 
-  fragColor = vec4(rgb, 1.0);
+  fragColor.rgb = basecolor + highlightcolor;
+  fragColor.a = 1.0;
 }
