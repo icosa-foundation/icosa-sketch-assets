@@ -1,4 +1,3 @@
-
 // Copyright 2020 The Tilt Brush Authors
 // Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
@@ -22,6 +21,8 @@ in vec4 a_texcoord1;
 
 out vec4 v_color;
 out vec3 v_normal;  // Camera-space normal.
+out vec3 v_tangent;  // Camera-space tangent.
+out vec3 v_bitangent;  // Camera-space bitangent.
 out vec3 v_position;  // Camera-space position.
 out vec2 v_texcoord0;
 out vec3 v_light_dir_0;  // Camera-space light direction, main light.
@@ -111,7 +112,8 @@ void main() {
   vec4 pos = GetParticlePositionLS();
 
   gl_Position = projectionMatrix * modelViewMatrix * pos;
-  v_normal = normalMatrix * a_normal;
+  // Transform normal view space
+  v_normal = normalize(normalMatrix * a_normal);
   v_position = (modelViewMatrix * pos).xyz;
   v_light_dir_0 = mat3(u_SceneLight_0_matrix) * vec3(0, 0, 1);
   v_light_dir_1 = mat3(u_SceneLight_1_matrix) * vec3(0, 0, 1);

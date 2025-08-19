@@ -1,4 +1,3 @@
-
 // Copyright 2020 The Tilt Brush Authors
 // Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
@@ -116,7 +115,7 @@ void main() {
   vec4 pos = GetParticlePositionLS();
 
   gl_Position = projectionMatrix * modelViewMatrix * pos;
-  v_normal = normalMatrix * a_normal;
+  v_normal = normalize(normalMatrix * a_normal);
   v_position = (modelViewMatrix * pos).xyz;
   v_light_dir_0 = u_SceneLight_0_matrix[2].xyz;
   v_light_dir_1 = u_SceneLight_1_matrix[2].xyz;

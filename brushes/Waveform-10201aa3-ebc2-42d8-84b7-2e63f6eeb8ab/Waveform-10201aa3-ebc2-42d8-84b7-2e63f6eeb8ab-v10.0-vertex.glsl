@@ -1,4 +1,3 @@
-
 // Copyright 2020 The Tilt Brush Authors
 // Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
@@ -22,6 +21,7 @@
 in vec4 a_position;
 in vec4 a_color;
 in vec2 a_texcoord0;
+in vec4 a_tangent;
 
 out vec4 v_color;
 out vec2 v_texcoord0;

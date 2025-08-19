@@ -1,4 +1,3 @@
-
 // Copyright 2020 The Tilt Brush Authors
 // Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
@@ -116,7 +115,8 @@ vec4 GetParticlePositionLS() {
 void main() {
   vec4 pos = GetParticlePositionLS();
 
-  v_normal = normalMatrix * a_normal;
+  // Transform normal to view space
+  vec3 normal = normalize(normalMatrix * a_normal);
   v_color = a_color;
   v_texcoord0 = a_texcoord0.xy;
 

@@ -1,4 +1,3 @@
-
 // Copyright 2020 The Tilt Brush Authors
 // Updated to OpenGL ES 3.0 by the Icosa Gallery Authors
 //
@@ -39,7 +38,7 @@ void main() {
 
   // Calculate uvs for each line
   vec3 us, vs;
-  { 
+  {
     us = A * v_texcoord0.x - aRate * u_time.y;
 
     vec3 tmp = M*A * v_texcoord0.x - bRate * u_time.y;
