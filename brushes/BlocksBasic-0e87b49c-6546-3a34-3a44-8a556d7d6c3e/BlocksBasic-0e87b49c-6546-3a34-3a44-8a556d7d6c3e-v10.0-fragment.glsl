@@ -64,6 +64,7 @@ vec3 computeLighting(vec3 normal) {
 
     return (lightOut0 + lightOut1 + ambientOut);
 }
+
 void main() {
     vec3 normal = normalize(v_normal);
     fragColor.rgb = ApplyFog(computeLighting(normal), f_fog_coord);
