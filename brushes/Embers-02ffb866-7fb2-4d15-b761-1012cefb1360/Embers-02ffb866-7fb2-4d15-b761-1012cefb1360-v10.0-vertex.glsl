@@ -124,17 +124,15 @@ void main() {
    t = mod(u_time.y*u_ScrollRate + a_color.a * 10.0, 1.0);
    t2 = u_time.y;
 
-  // Animate the motion of the embers
-  // Accumulate all displacement into a common, pre-transformed space.
-  vec4 dispVec = modelMatrix * vec4(u_ScrollDistance.x, u_ScrollDistance.y, u_ScrollDistance.z, 0.0) * t;
-  vec3 worldPos = (modelMatrix * pos).xyz;
-
-  dispVec.x += sin(t * u_ScrollJitterFrequency + a_color.a * 100.0 + t2 + worldPos.z) * u_ScrollJitterIntensity;
-  dispVec.y += (mod(a_color.a * 100.0, 1.0) - 0.5) * u_ScrollDistance.y * t;
-  dispVec.z += cos(t * u_ScrollJitterFrequency + a_color.a * 100.0 + t2 + worldPos.x) * u_ScrollJitterIntensity;
-
-  worldPos.xyz += dispVec.xyz;
-
+  vec3 center_os = pos.xyz;
+  float scale = max(length(modelMatrix[1].xyz), 0.0001);
+  vec3 scroll_local = u_ScrollDistance * (t * 0.1);
+  float jitter_x = sin(t * u_ScrollJitterFrequency + a_color.a * 100.0 + t2 + center_os.z) * u_ScrollJitterIntensity * 0.1;
+  float jitter_y = (mod(a_color.a * 100.0, 1.0) - 0.5) * u_ScrollDistance.y * (t * 0.1);
+  float jitter_z = cos(t * u_ScrollJitterFrequency + a_color.a * 100.0 + t2 + center_os.x) * u_ScrollJitterIntensity * 0.1;
+  vec3 disp_local = scroll_local + vec3(jitter_x, jitter_y, jitter_z);
+  disp_local *= scale;
+  vec4 displaced = pos + vec4(disp_local, 0.0);
 
   // Ramp color from bright to dark over particle lifetime
   vec3 incolor = a_color.rgb;
@@ -147,6 +145,6 @@ void main() {
   // Dim over lifetime
   v_color.rgb *= incolor * pow (1.0 - t, 2.0)*5.0;
 
-  gl_Position = projectionMatrix * viewMatrix * vec4(worldPos.x, worldPos.y, worldPos.z,1.0);
-  v_position = (modelViewMatrix * pos).xyz;
+  gl_Position = projectionMatrix * modelViewMatrix * displaced;
+  v_position = (modelViewMatrix * displaced).xyz;
 }
