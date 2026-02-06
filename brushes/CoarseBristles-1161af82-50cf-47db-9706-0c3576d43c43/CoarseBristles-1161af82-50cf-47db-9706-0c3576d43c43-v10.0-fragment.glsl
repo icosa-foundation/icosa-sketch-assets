@@ -34,6 +34,7 @@ in float f_fog_coord;
 
 uniform sampler2D u_MainTex;
 uniform float u_Cutoff;
+uniform float u_A2CEnabled;
 
 // Copyright 2020 The Tilt Brush Authors
 //
@@ -68,11 +69,34 @@ vec3 computeLighting() {
 }
 
 void main() {
-    float brush_mask = texture(u_MainTex, v_texcoord0).w;
-    if (brush_mask > u_Cutoff) {
+    float a = texture(u_MainTex, v_texcoord0).a;
+
+    if (u_A2CEnabled < 0.5) {
+        if (a <= u_Cutoff) {
+            discard;
+        }
         fragColor.rgb = ApplyFog(computeLighting(), f_fog_coord);
         fragColor.a = 1.0;
-    } else {
+        return;
+    }
+
+    // Calculate mip level for coverage compensation
+    vec2 texSize = vec2(textureSize(u_MainTex, 0));
+    vec2 dx = dFdx(v_texcoord0 * texSize);
+    vec2 dy = dFdy(v_texcoord0 * texSize);
+    float mip = 0.5 * log2(max(dot(dx, dx), dot(dy, dy)));
+    mip = max(mip, 0.0);
+
+    // Boost alpha at higher mip levels to compensate for mipmap averaging
+    // This preserves coverage when using alpha-to-coverage
+    float compensation = 1.0 + mip * 0.6;
+    float adjustedAlpha = clamp(a * compensation, 0.0, 1.0);
+
+    // Discard only fully transparent pixels
+    if (adjustedAlpha < 0.01) {
         discard;
     }
+
+    fragColor.rgb = ApplyFog(computeLighting(), f_fog_coord);
+    fragColor.a = adjustedAlpha;
 }
