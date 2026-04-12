@@ -37,6 +37,7 @@ uniform mat4 projectionMatrix;
 uniform mat3 normalMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
+uniform bool u_isNewTiltExporter;
 
 uniform vec4 u_time;
 uniform float u_ScrollRate;
@@ -48,29 +49,48 @@ uniform float u_DisplacementIntensity;
 void main() {
 	float envelope = sin(a_texcoord0.x * (3.14159));
 	float envelopePow =  (1.0-pow(1.0 - envelope, 10.0));
-	vec3 offsetFromMiddleToEdge_CS = a_texcoord1.xyz;
-	float widthiness_CS = length(offsetFromMiddleToEdge_CS) / .02;
-	vec3 midpointPos_CS = a_position.xyz - offsetFromMiddleToEdge_CS;
-
+	vec3 worldPos = (modelMatrix * a_position).xyz;
 	float t = u_time.w;
 
-	vec3 worldPos = (modelMatrix * a_position).xyz;
-	
-	// This recreates the standard ribbon position with some tapering at edges
-	worldPos.xyz = midpointPos_CS + offsetFromMiddleToEdge_CS * envelopePow; 
-	worldPos = vec4(modelMatrix * vec4(worldPos.xyz, 1.0)).xyz;
+	if (!u_isNewTiltExporter) {
+		vec3 offsetFromMiddleToEdge_CS = a_texcoord1.xyz;
+		float widthiness_CS = length(offsetFromMiddleToEdge_CS) / .02;
+		vec3 midpointPos_CS = a_position.xyz - offsetFromMiddleToEdge_CS;
 
-	// This adds noise
-	vec3 dispVec = vec3(0., 0., 0.);
-	dispVec.x += sin(midpointPos_CS.z * 100.0 + t * 13.0 ) * 0.05;
-	dispVec.y += cos(midpointPos_CS.x * 120.0 + t * 10.0 ) * 0.05;
-	dispVec.z += cos(midpointPos_CS.y * 80.0 + t * 7.0 ) * 0.05;
-	dispVec = (modelMatrix * vec4(dispVec, 0.0)).xyz;
-	
-	worldPos.xyz += widthiness_CS * dispVec * u_DisplacementIntensity * envelopePow; 
-	
-	gl_Position = projectionMatrix * viewMatrix * vec4(worldPos.x, worldPos.y, worldPos.z,1.0);
-	v_position = (modelViewMatrix * a_position).xyz;
+		// Old exports still need the original ribbon reconstruction.
+		worldPos = midpointPos_CS + offsetFromMiddleToEdge_CS * envelopePow;
+		worldPos = vec4(modelMatrix * vec4(worldPos.xyz, 1.0)).xyz;
+
+		// Old exports also need the original vertex noise because it was not baked.
+		vec3 dispVec = vec3(0., 0., 0.);
+		dispVec.x += sin(midpointPos_CS.z * 100.0 + t * 13.0 ) * 0.05;
+		dispVec.y += cos(midpointPos_CS.x * 120.0 + t * 10.0 ) * 0.05;
+		dispVec.z += cos(midpointPos_CS.y * 80.0 + t * 7.0 ) * 0.05;
+		dispVec = (modelMatrix * vec4(dispVec, 0.0)).xyz;
+
+		worldPos.xyz += widthiness_CS * dispVec * u_DisplacementIntensity * envelopePow;
+	} else {
+		// New exports already contain the baked ribbon reconstruction and t=0 deformation.
+		// UV1 stores original texcoord1.z in x and original texcoord1.y in y, which is enough
+		// for an approximate runtime displacement amplitude without replaying the old bake path.
+		float approxWidthiness_CS = length(a_texcoord1.xy) / .02;
+		vec3 currentDispVec = vec3(0., 0., 0.);
+		currentDispVec.x += sin(a_position.z * 100.0 + t * 13.0 ) * 0.05;
+		currentDispVec.y += cos(a_position.x * 120.0 + t * 10.0 ) * 0.05;
+		currentDispVec.z += cos(a_position.y * 80.0 + t * 7.0 ) * 0.05;
+		currentDispVec = (modelMatrix * vec4(currentDispVec, 0.0)).xyz;
+
+		vec3 bakedDispVec = vec3(0., 0., 0.);
+		bakedDispVec.x += sin(a_position.z * 100.0) * 0.05;
+		bakedDispVec.y += cos(a_position.x * 120.0) * 0.05;
+		bakedDispVec.z += cos(a_position.y * 80.0) * 0.05;
+		bakedDispVec = (modelMatrix * vec4(bakedDispVec, 0.0)).xyz;
+
+		worldPos.xyz += approxWidthiness_CS * (currentDispVec - bakedDispVec) * u_DisplacementIntensity * envelopePow;
+	}
+
+	gl_Position = projectionMatrix * viewMatrix * vec4(worldPos.xyz, 1.0);
+	v_position = (viewMatrix * vec4(worldPos.xyz, 1.0)).xyz;
 	v_color = a_color;
 	
 	// boost v_color at edges
