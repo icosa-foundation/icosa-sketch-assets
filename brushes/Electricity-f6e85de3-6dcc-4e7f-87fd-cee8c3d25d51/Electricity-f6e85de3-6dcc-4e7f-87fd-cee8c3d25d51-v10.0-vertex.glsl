@@ -162,6 +162,7 @@ void main() {
 
     if (widthiness_CS > 0.0) {
       vec3 dispVec = displacement(midpointPos_CS / widthiness_CS, mod, time);
+      dispVec = (modelMatrix * vec4(dispVec, 0.0)).xyz;
       worldPos += widthiness_CS * dispVec * u_DisplacementIntensity * envelopePow;
     }
   } else {
@@ -171,6 +172,8 @@ void main() {
     if (widthiness_CS > 0.0) {
       vec3 currentDispVec = displacement(midpointPos_CS / widthiness_CS, mod, time);
       vec3 bakedDispVec = displacement(midpointPos_CS / widthiness_CS, mod, 0.0);
+      currentDispVec = (modelMatrix * vec4(currentDispVec, 0.0)).xyz;
+      bakedDispVec = (modelMatrix * vec4(bakedDispVec, 0.0)).xyz;
       worldPos += widthiness_CS * (currentDispVec - bakedDispVec) * u_DisplacementIntensity * envelopePow;
     }
   }
