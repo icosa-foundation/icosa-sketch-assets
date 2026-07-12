@@ -107,7 +107,7 @@ vec4 PositionParticle(
 
 // Returns the particle position for this vertex, untransformed, in local/object space.
 vec4 GetParticlePositionLS() {
-	return PositionParticle(float(gl_VertexID), a_position, a_normal, a_texcoord0.z);
+	return PositionParticle(a_texcoord1.w, a_position, a_normal, a_texcoord0.z);
 }
 // ---------------------------------------------------------------------------------------------- //
 // ---------------------------------------------------------------------------------------------- //

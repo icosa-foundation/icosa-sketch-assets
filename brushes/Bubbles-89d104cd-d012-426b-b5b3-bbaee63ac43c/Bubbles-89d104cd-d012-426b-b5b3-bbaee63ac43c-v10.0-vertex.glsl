@@ -189,7 +189,7 @@ void main() {
   vec3 center = a_normal;
 
   // Orient particle to face camera (in object space)
-  vec4 pos = OrientParticle(center, halfSize, float(gl_VertexID), rotation);
+  vec4 pos = OrientParticle(center, halfSize, a_texcoord1.w, rotation);
 
   // Transform to world space, then add displacement directly
   // (matches Snow/Embers web pattern: displacement added in world space)
