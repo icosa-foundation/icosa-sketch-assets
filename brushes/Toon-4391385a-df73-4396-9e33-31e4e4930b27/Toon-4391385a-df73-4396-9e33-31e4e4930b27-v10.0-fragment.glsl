@@ -27,6 +27,7 @@ in vec3 v_light_dir_0;
 in vec3 v_light_dir_1;
 in vec2 v_texcoord0;
 in float f_fog_coord;
+uniform bool u_ToonOutlinePass;
 
 // Copyright 2020 The Tilt Brush Authors
 //
@@ -44,6 +45,10 @@ in float f_fog_coord;
 
 
 void main() {
+  if (u_ToonOutlinePass) {
+    fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    return;
+  }
   vec4 color = v_color;
   color.xyz += normalize(v_normal).y * .2;
   color.xyz = max(vec3(0.0,0.0,0.0), color.xyz);

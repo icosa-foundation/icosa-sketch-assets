@@ -31,7 +31,7 @@
 in vec4 a_position;
 in vec3 a_normal;
 in vec4 a_color;
-in vec2 a_texcoord0;
+in vec3 a_texcoord0;
 in vec4 a_tangent;
 
 out vec4 v_color;
@@ -49,9 +49,26 @@ uniform mat4 projectionMatrix;
 uniform mat3 normalMatrix;
 uniform mat4 u_SceneLight_0_matrix;
 uniform mat4 u_SceneLight_1_matrix;
+uniform bool u_ToonOutlinePass;
+uniform float u_OutlineMax;
 
 void main() {
-  gl_Position = projectionMatrix * modelViewMatrix * a_position;
+  vec4 baseClip = projectionMatrix * modelViewMatrix * a_position;
+  gl_Position = baseClip;
+  if (u_ToonOutlinePass) {
+    float inflate = a_texcoord0.z * 0.4;
+    vec4 outlineClip = projectionMatrix * modelViewMatrix *
+      vec4(a_position.xyz + a_normal * inflate, a_position.w);
+    vec3 displacement = outlineClip.xyz / outlineClip.w -
+      baseClip.xyz / baseClip.w;
+    float magnitude = length(displacement.xy);
+    if (magnitude > 0.0) {
+      float scale = min(u_OutlineMax, magnitude) / magnitude;
+      gl_Position.xyz += vec3(displacement.xy * scale, displacement.z) *
+        baseClip.w;
+      gl_Position.z -= displacement.z * baseClip.w;
+    }
+  }
   f_fog_coord = gl_Position.z;
   // Transform normal and tangent to view space
   vec3 normal = normalize(normalMatrix * a_normal);
@@ -67,5 +84,5 @@ void main() {
   v_light_dir_0 = mat3(u_SceneLight_0_matrix) * vec3(0, 0, 1);
   v_light_dir_1 = mat3(u_SceneLight_1_matrix) * vec3(0, 0, 1);
   v_color = a_color;
-  v_texcoord0 = a_texcoord0;
+  v_texcoord0 = a_texcoord0.xy;
 }
