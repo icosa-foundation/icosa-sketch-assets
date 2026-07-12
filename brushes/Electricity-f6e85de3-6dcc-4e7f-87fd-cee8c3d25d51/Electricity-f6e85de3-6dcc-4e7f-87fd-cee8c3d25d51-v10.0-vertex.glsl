@@ -46,6 +46,7 @@ uniform vec3 u_ScrollDistance;
 uniform float u_ScrollJitterIntensity;
 uniform float u_ScrollJitterFrequency;
 uniform float u_DisplacementIntensity;
+uniform float u_DisplacementMod;
 
 float mod289(float x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -148,7 +149,7 @@ vec3 displacement(vec3 pos, float mod, float time) {
 void main() {
   float envelope = sin(a_texcoord0.x * 3.14159);
   float envelopePow = 1.0 - pow(1.0 - envelope, 10.0);
-  float mod = 1.0;
+  float mod = u_DisplacementMod;
   float time = u_time.w;
   vec3 worldPos = (modelMatrix * a_position).xyz;
 
