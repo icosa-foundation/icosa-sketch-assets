@@ -39,10 +39,10 @@ void main() {
     discard;
   }
   
-  // Create hue shift effect - working toward Unity's red->purple behavior
-  float shift = 5.0 + v_color.r + v_color.g + v_color.b + v_color.a;
-  // Try different calculations to find what maps red -> purple (hue ≈ 4.5)
-  float hueInput = 4.5 + v_color.r * 0.5; // Start with purple base, slight red variation
+  // Unity implicitly takes the red component when assigning these vector
+  // expressions to scalars.
+  float shift = 5.0 + v_color.r;
+  float hueInput = v_color.r * shift;
   vec3 hueShiftColor = hue06_to_base_rgb(hueInput);
   
   // Create vignette effect for hue blending (matches Unity calculation)
