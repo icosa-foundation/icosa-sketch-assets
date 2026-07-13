@@ -26,25 +26,18 @@ uniform float u_Scroll2;
 uniform float u_DisplacementIntensity;
 uniform float u_FlameFadeMin;
 uniform float u_FlameFadeMax;
+uniform float u_EmissionGain;
 
 in vec4 v_color;
 in vec2 v_texcoord0;
 in vec4 v_worldPos;
 
-// HDR encoding function from Hdr.cginc
-vec4 encodeHdr(vec3 color) {
-  // Using HDR_EMULATED mode (most common)
-  float m = max(max(color.r, color.g), color.b);
-  float HDR_SCALE = 16.0;
-  float expf = min(log2(max(m, 0.001)), HDR_SCALE);
-  vec4 c = vec4(color, 1.0);
-  
-  if (m > 1.0) {
-    c /= exp2(log2(max(m, 0.001)));
-    c.a = 1.0 - (expf / HDR_SCALE);
-  }
-  
-  return c;
+vec4 bloomColor(vec4 color, float gain) {
+  float cmin = length(color.rgb) * 0.05;
+  color.rgb = max(color.rgb, vec3(cmin));
+  color = pow(color, vec4(2.2));
+  color.rgb *= 2.0 * exp(gain * 10.0);
+  return color;
 }
 
 void main() {
@@ -68,7 +61,7 @@ void main() {
   float flame2 = texture(u_MainTex, vec2(uv.x, 1.0 - uv.y) + vec2(-u_time.x * u_Scroll2, -u_time.x * u_Scroll2 / 4.0)).x;
 
   // Combine flames
-  float flames = clamp((flame2 + flame1) / 2.0, 0.0, 1.0);
+  float flames = clamp(flame2 + flame1, 0.0, 1.0) / 2.0;
   flames = smoothstep(0.0, 0.8, mask * flames);
   flames *= mask;
 
@@ -79,10 +72,6 @@ void main() {
   // Apply flame fade along stroke
   tex.xyz *= pow(1.0 - v_texcoord0.x, flame_fade) * (flame_fade * 2.0);
 
-  // Final color calculation (matches Unity Fire2)
-  vec4 color = v_color * tex;
-  
-  // Make it brighter to match Unity - try direct multiplication first
-  color.rgb *= color.a * 15.0; // Boost brightness
-  fragColor = vec4(color.rgb, 1.0);
+  vec4 color = bloomColor(v_color, u_EmissionGain) * tex;
+  fragColor = color * color.a;
 }
