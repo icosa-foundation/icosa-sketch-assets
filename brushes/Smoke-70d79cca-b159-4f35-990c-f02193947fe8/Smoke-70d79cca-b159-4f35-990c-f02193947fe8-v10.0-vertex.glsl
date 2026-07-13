@@ -41,9 +41,6 @@ uniform mat4 u_SceneLight_0_matrix;
 uniform mat4 u_SceneLight_1_matrix;
 
 uniform vec4 u_time;
-uniform float u_ScrollRate;
-uniform float u_ScrollJitterIntensity;
-uniform float u_ScrollJitterFrequency;
 
 // -------------------------------------------------------------------------
 // Simplex noise (from Noise.cginc, ported to GLSL)
@@ -132,21 +129,10 @@ float curlZ(vec3 v, float d) {
 // Smoke displacement
 // -------------------------------------------------------------------------
 
-vec3 computeDisplacement(vec3 seed, float timeOffset) {
-  // Jitter
-  float t = u_time.y * u_ScrollRate + timeOffset;
-  vec3 jitter;
-  jitter.x = sin(t       + u_time.y + seed.z * u_ScrollJitterFrequency);
-  jitter.z = cos(t       + u_time.y + seed.x * u_ScrollJitterFrequency);
-  jitter.y = cos(t * 1.2 + u_time.y + seed.x * u_ScrollJitterFrequency);
-  jitter *= u_ScrollJitterIntensity;
-
-  // Curl noise - slower, smoother for smoke
-  vec3 v = (seed + jitter) * 0.05 + u_time.x * 2.0;
+vec3 computeDisplacement(vec3 worldCenter) {
+  vec3 v = worldCenter * 0.1 + u_time.x * 5.0;
   float d = 30.0;
-  vec3 curl = vec3(curlX(v, d), curlY(v, d), curlZ(v, d)) * 15.0;
-
-  return jitter + curl;
+  return vec3(curlX(v, d), curlY(v, d), curlZ(v, d)) * 0.5;
 }
 
 // Copyright 2020 The Tilt Brush Authors
@@ -241,10 +227,7 @@ void main() {
   vec3 worldPos = (modelMatrix * pos).xyz;
   vec3 worldCenter = (modelMatrix * vec4(center, 1.0)).xyz;
 
-  // Scale seed to decimeters (Unity units) for correct noise sampling,
-  // then scale result back to meters (web units).
-  vec3 seedDecimeters = worldCenter * 10.0;
-  vec3 displacement = computeDisplacement(seedDecimeters, 1.0) * 0.1;
+  vec3 displacement = computeDisplacement(worldCenter);
   worldPos += displacement;
 
   gl_Position = projectionMatrix * viewMatrix * vec4(worldPos, 1.0);
