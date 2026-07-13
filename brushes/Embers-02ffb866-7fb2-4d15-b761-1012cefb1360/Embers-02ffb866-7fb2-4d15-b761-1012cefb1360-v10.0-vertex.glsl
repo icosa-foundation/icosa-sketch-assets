@@ -143,7 +143,9 @@ void main() {
   dispVec.y += (mod(a_color.a * 100.0, 1.0) - 0.5) * u_ScrollDistance.y * t;
   dispVec.z += cos(t * u_ScrollJitterFrequency + a_color.a * 100.0 + t2 + worldPos.x) * u_ScrollJitterIntensity;
 
-  worldPos.xyz += dispVec.xyz;
+  float age = max(0.0, abs(u_time.y) - abs(a_texcoord0.w));
+  float spreadProgress = 1.0 - exp(-u_SpreadRate * age);
+  worldPos.xyz += spreadProgress * dispVec.xyz;
 
 
   // Ramp color from bright to dark over particle lifetime
