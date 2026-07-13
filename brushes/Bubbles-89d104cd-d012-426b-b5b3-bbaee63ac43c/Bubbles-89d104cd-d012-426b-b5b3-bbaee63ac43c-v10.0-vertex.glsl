@@ -207,7 +207,8 @@ void main() {
   // then scale result back to meters (web units).
   // Unity geometry is in decimeters; exported GLTF geometry is in meters (10x smaller).
   vec3 seedDecimeters = worldCenter * 10.0;
-  vec3 displacement = computeDisplacement(seedDecimeters, 1.0) * 0.1;
+  vec3 displacement =
+    spreadProgress * computeDisplacement(seedDecimeters, 1.0) * 0.1;
   worldPos += displacement;
 
   gl_Position = projectionMatrix * viewMatrix * vec4(worldPos, 1.0);

@@ -155,7 +155,9 @@ void main() {
   dispVec.z += cos(t * u_ScrollJitterFrequency * .5 + _Time.y) * u_ScrollJitterIntensity;
 
   vec3 worldPos = (modelMatrix * pos).xyz;
-  worldPos.xyz += dispVec.xyz;
+  float age = max(0.0, abs(u_time.y) - abs(a_texcoord0.w));
+  float spreadProgress = 1.0 - exp(-u_SpreadRate * age);
+  worldPos.xyz += spreadProgress * dispVec.xyz;
 
   v_color.a = pow(1.0 - abs(2.0*(t - .5)), 3.0);
 
