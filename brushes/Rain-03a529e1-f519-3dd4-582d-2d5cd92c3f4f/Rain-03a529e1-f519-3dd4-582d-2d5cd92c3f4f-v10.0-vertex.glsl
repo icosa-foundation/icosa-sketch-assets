@@ -47,10 +47,9 @@ uniform vec4 u_time;
 void main() {
   vec4 vertex = a_position;
   
-  // Inflate the tube outward using radius from texcoord.z
-  // Reduced from Unity's 2.25 for better proportions
+  // Inflate the tube outward using radius from texcoord.z.
   float radius = a_texcoord0.z;
-  vertex.xyz += a_normal * 1.5 * radius;
+  vertex.xyz += a_normal * 2.25 * radius;
   
   vec4 worldPos = modelMatrix * vertex;
   

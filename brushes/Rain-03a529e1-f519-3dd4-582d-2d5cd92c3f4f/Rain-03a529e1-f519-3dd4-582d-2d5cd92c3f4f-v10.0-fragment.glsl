@@ -36,9 +36,7 @@ float rand_1_05(vec2 uv) {
 
 void main() {
   float u_scale = u_Speed;  // Unity: u_scale = _Speed
-  // Fix: our u_time.y advances ~4x faster than Unity's _Time.y  
-  float time_scale = 0.3;  // Adjusted for proper Unity timing
-  float t = mod(u_time.y * time_scale * 4.0 * u_scale, u_scale);
+  float t = mod(u_time.y * 4.0 * u_scale, u_scale);
   
   // Rescale U coord and animate it
   vec2 uvs = v_texcoord0;
@@ -49,7 +47,7 @@ void main() {
   float rand = rand_1_05(vec2(row_id));
   
   // Randomize animation by row ID
-  u += rand * u_time.y * time_scale * 2.75 * u_scale;
+  u += rand * u_time.y * 2.75 * u_scale;
   
   // Wrap U coordinate
   u = mod(u, u_scale); // Unity: u = fmod(u, u_scale)
