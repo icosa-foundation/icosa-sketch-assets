@@ -38,8 +38,7 @@ uniform mat4 u_SceneLight_1_matrix;
 uniform float u_SqueezeAmount;
 
 void main() {
-//  float radius = a_texcoord0.z;
-  float radius = 0.05;  // Temp fix
+  float radius = a_texcoord0.z;
 
   float squeeze = sin(a_texcoord0.x * 3.14159);
   vec3 squeeze_displacement = radius * a_normal * squeeze;
@@ -49,10 +48,9 @@ void main() {
 
   f_fog_coord = gl_Position.z;
   // Perturb normal
-//  unity_normal = normalize(a_normal + squeeze_displacement * 2.5);
-  unity_normal = a_normal;
+  unity_normal = normalize(a_normal + squeeze_displacement * 2.5);
   v_normal = normalMatrix * unity_normal;
-  v_position = (modelViewMatrix * a_position).xyz;
+  v_position = (modelViewMatrix * dispPos).xyz;
   v_light_dir_0 = mat3(u_SceneLight_0_matrix) * vec3(0, 0, 1);
   v_light_dir_1 = mat3(u_SceneLight_1_matrix) * vec3(0, 0, 1);
   v_color = a_color;
