@@ -17,7 +17,6 @@ in vec4 a_position;
 in vec3 a_normal;
 in vec4 a_color;
 in vec2 a_texcoord0;
-in vec2 a_texcoord1;
 in vec4 a_tangent;
 
 out vec4 v_color;
@@ -57,5 +56,5 @@ void main() {
   v_light_dir_1 = mat3(u_SceneLight_1_matrix) * vec3(0, 0, 1);
   v_color = a_color;
   v_texcoord0 = a_texcoord0 * u_MainTex_ST.xy + u_MainTex_ST.zw;
-  v_texcoord1 = a_texcoord1 * u_SecondaryTex_ST.xy + u_SecondaryTex_ST.zw;
+  v_texcoord1 = a_texcoord0 * u_SecondaryTex_ST.xy + u_SecondaryTex_ST.zw;
 }
