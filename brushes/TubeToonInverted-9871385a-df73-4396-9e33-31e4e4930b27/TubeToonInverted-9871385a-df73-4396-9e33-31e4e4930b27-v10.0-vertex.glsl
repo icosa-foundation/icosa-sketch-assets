@@ -63,5 +63,7 @@ void main() {
   v_light_dir_0 = mat3(u_SceneLight_0_matrix) * vec3(0, 0, 1);
   v_light_dir_1 = mat3(u_SceneLight_1_matrix) * vec3(0, 0, 1);
   v_color = a_color;
+  v_color.a = 1.0;
+  v_color.rgb += a_normal.y * 0.2;
   v_texcoord0 = a_texcoord0;
 }
