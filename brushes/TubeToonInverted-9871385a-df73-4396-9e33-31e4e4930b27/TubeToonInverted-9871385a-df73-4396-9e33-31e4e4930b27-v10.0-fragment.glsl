@@ -36,7 +36,7 @@ in vec3 v_position;
 // limitations under the License.
 
 in float f_fog_coord;
-uniform float u_TubeToonPass;
+uniform highp float u_TubeToonPass;
 
 void main() {
   bool blackPass = u_TubeToonPass > 0.5 && u_TubeToonPass < 1.5;

@@ -34,8 +34,8 @@ uniform mat4 projectionMatrix;
 uniform mat3 normalMatrix;
 uniform mat4 u_SceneLight_0_matrix;
 uniform mat4 u_SceneLight_1_matrix;
-uniform float u_TubeToonPass;
-uniform float u_TubeToonOutlineSize;
+uniform highp float u_TubeToonPass;
+uniform highp float u_TubeToonOutlineSize;
 
 void main() {
   vec4 position = a_position;
