@@ -40,7 +40,12 @@ uniform float u_TubeToonOutlineSize;
 void main() {
   vec4 position = a_position;
   if (u_TubeToonColorPass) {
-    position.xyz += a_normal * u_TubeToonOutlineSize;
+    // Unity converts its fixed scene-space 0.05 outline through xf_I_CS.
+    // modelViewMatrix contains the equivalent canvas/object scale; view
+    // rotation does not affect the transformed vector length.
+    float normalScale = length(mat3(modelViewMatrix) * a_normal);
+    float localOutline = u_TubeToonOutlineSize / max(normalScale, 1e-6);
+    position.xyz += a_normal * localOutline;
   }
   gl_Position = projectionMatrix * modelViewMatrix * position;
   f_fog_coord = gl_Position.z;
