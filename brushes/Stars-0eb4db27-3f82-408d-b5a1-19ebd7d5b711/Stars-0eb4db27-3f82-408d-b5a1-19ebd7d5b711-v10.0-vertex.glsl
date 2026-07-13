@@ -36,6 +36,7 @@ uniform mat4 projectionMatrix;
 uniform mat3 normalMatrix;
 
 uniform vec4 u_time;
+uniform float u_SpreadRate;
 uniform float u_SparkleRate;
 
 // Copyright 2020 The Tilt Brush Authors
@@ -109,8 +110,11 @@ vec4 PositionParticle(
 
 // Returns the particle position for this vertex, untransformed, in local/object space.
 vec4 GetParticlePositionLS() {
+	float age = max(0.0, abs(u_time.y) - abs(a_texcoord0.w));
+	float spreadProgress = 1.0 - exp(-u_SpreadRate * age);
+	vec3 center = mix(a_texcoord1.xyz, a_normal, spreadProgress);
 	return PositionParticle(
-		a_texcoord1.w, a_position, a_normal, a_texcoord0.z, a_texcoord0.w);
+		a_texcoord1.w, a_position, center, a_texcoord0.z, a_texcoord0.w);
 }
 // ---------------------------------------------------------------------------------------------- //
 // ---------------------------------------------------------------------------------------------- //

@@ -36,6 +36,7 @@ uniform mat4 u_SceneLight_0_matrix;
 uniform mat4 u_SceneLight_1_matrix;
 
 uniform vec4 u_time;
+uniform float u_SpreadRate;
 uniform float u_ScrollRate;
 uniform float u_ScrollJitterIntensity;
 uniform float u_ScrollJitterFrequency;
@@ -190,7 +191,9 @@ void main() {
   float rotation = a_texcoord0.z;
 
   // Center is stored in a_normal (particle center)
-  vec3 center = a_normal;
+  float age = max(0.0, abs(u_time.y) - abs(a_texcoord0.w));
+  float spreadProgress = 1.0 - exp(-u_SpreadRate * age);
+  vec3 center = mix(a_texcoord1.xyz, a_normal, spreadProgress);
 
   // Orient particle to face camera (in object space)
   vec4 pos = OrientParticle(center, halfSize, a_texcoord1.w, rotation);
