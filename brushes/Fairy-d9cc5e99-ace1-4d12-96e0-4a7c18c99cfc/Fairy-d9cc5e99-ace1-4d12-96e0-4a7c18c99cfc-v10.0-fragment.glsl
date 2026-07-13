@@ -37,9 +37,12 @@ vec2 random2(vec2 p) {
   return vec2(random(p), random(p + vec2(1.0)));
 }
 
-// Simple bloom color approximation (replaces Unity's bloomColor function)
-vec3 bloomColor(vec3 color, float intensity) {
-  return color * (1.0 + intensity);
+vec4 bloomColor(vec4 color, float gain) {
+  float cmin = length(color.rgb) * 0.05;
+  color.rgb = max(color.rgb, vec3(cmin));
+  color = pow(color, vec4(2.2));
+  color.rgb *= 2.0 * exp(gain * 10.0);
+  return color;
 }
 
 void main() {
@@ -108,7 +111,6 @@ void main() {
   float time = sin(u_time.z * fadespeed + fadephase) / 2.0 + 0.5;
   lum *= mix(0.0, 1.0, time);
 
-  vec4 color;
   fragColor.a = 1.0;
-  fragColor.rgb = lum * bloomColor(v_color.rgb, lum * u_EmissionGain);
+  fragColor.rgb = lum * bloomColor(v_color, lum * u_EmissionGain).rgb;
 }
