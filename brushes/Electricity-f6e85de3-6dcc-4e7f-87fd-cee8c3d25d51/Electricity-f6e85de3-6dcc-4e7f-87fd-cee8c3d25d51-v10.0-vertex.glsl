@@ -39,6 +39,7 @@ uniform mat3 normalMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform bool u_isNewTiltExporter;
+uniform bool u_ElectricityHasBakedDisplacement;
 
 uniform vec4 u_time;
 uniform float u_ScrollRate;
@@ -172,10 +173,13 @@ void main() {
 
     if (widthiness_CS > 0.0) {
       vec3 currentDispVec = displacement(midpointPos_CS / widthiness_CS, mod, time);
-      vec3 bakedDispVec = displacement(midpointPos_CS / widthiness_CS, mod, 0.0);
       currentDispVec = (modelMatrix * vec4(currentDispVec, 0.0)).xyz;
-      bakedDispVec = (modelMatrix * vec4(bakedDispVec, 0.0)).xyz;
-      worldPos += widthiness_CS * (currentDispVec - bakedDispVec) * u_DisplacementIntensity * envelopePow;
+      if (u_ElectricityHasBakedDisplacement) {
+        vec3 bakedDispVec = displacement(midpointPos_CS / widthiness_CS, 1.0, 0.0);
+        bakedDispVec = (modelMatrix * vec4(bakedDispVec, 0.0)).xyz;
+        worldPos -= widthiness_CS * bakedDispVec * 0.1 * envelopePow;
+      }
+      worldPos += widthiness_CS * currentDispVec * u_DisplacementIntensity * envelopePow;
     }
   }
 
