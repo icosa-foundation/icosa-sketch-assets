@@ -167,7 +167,7 @@ void main() {
 
   vec3 worldPos = (modelMatrix * pos).xyz;
   if (u_isTiltInput) {
-    vec3 unityCenter = vec3(center.x, center.y, -center.z);
+    vec3 unityCenter = vec3(center.x, center.y, -center.z) * 10.0;
     vec3 tiltScrollDistance = vec3(
       -u_ScrollDistance.x, u_ScrollDistance.y, -u_ScrollDistance.z
     ) * 10.0;
