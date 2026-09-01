@@ -272,7 +272,7 @@ void main() {
     // Open Brush samples this brush's curl noise after transforming the center
     // to world space, unlike Bubbles and Embers which sample object space.
     vec3 unityCenter = vec3(worldCenter.x, worldCenter.y, -worldCenter.z);
-    vec3 unityDisplacement = computeTiltDisplacement(unityCenter);
+    vec3 unityDisplacement = computeTiltDisplacement(unityCenter * 10.0);
     worldPos += 0.1 * vec3(
       unityDisplacement.x, unityDisplacement.y, -unityDisplacement.z
     );
