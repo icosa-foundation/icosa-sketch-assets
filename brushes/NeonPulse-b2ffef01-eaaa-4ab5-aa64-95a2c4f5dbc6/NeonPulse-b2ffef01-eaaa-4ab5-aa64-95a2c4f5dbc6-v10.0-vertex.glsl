@@ -49,6 +49,7 @@ uniform mat4 projectionMatrix;
 uniform mat3 normalMatrix;
 uniform mat4 u_SceneLight_0_matrix;
 uniform mat4 u_SceneLight_1_matrix;
+uniform bool u_isTiltInput;
 
 void main() {
   gl_Position = projectionMatrix * modelViewMatrix * a_position;
@@ -66,6 +67,8 @@ void main() {
   v_position = (modelViewMatrix * a_position).xyz;
   v_light_dir_0 = mat3(u_SceneLight_0_matrix) * vec3(0, 0, 1);
   v_light_dir_1 = mat3(u_SceneLight_1_matrix) * vec3(0, 0, 1);
-  v_color = a_color;
+  // The Open Brush surface vertex function converts its zero-initialized
+  // output color instead of copying the input vertex color.
+  v_color = u_isTiltInput ? vec4(0.0) : a_color;
   v_texcoord0 = a_texcoord0;
 }
