@@ -44,6 +44,8 @@ uniform vec4 u_time;
 uniform float u_ScrollRate;
 uniform float u_ScrollJitterIntensity;
 uniform float u_ScrollJitterFrequency;
+uniform float u_GeniusParticlePreviewLifetime;
+uniform bool u_isTiltInput;
 
 // -------------------------------------------------------------------------
 // Simplex noise (from Noise.cginc, ported to GLSL)
@@ -132,20 +134,23 @@ float curlZ(vec3 v, float d) {
 // Smoke displacement
 // -------------------------------------------------------------------------
 
-vec3 computeDisplacement(vec3 seed, float timeOffset) {
-  // Jitter
+vec3 computeTiltDisplacement(vec3 centerUnity) {
+  float time = u_time.x * 5.0;
+  vec3 v = centerUnity * 0.1 + vec3(time);
+  float d = 30.0;
+  return vec3(curlX(v, d), curlY(v, d), curlZ(v, d)) * 5.0;
+}
+
+vec3 computeGltfDisplacement(vec3 seed, float timeOffset) {
   float t = u_time.y * u_ScrollRate + timeOffset;
   vec3 jitter;
-  jitter.x = sin(t       + u_time.y + seed.z * u_ScrollJitterFrequency);
-  jitter.z = cos(t       + u_time.y + seed.x * u_ScrollJitterFrequency);
+  jitter.x = sin(t + u_time.y + seed.z * u_ScrollJitterFrequency);
+  jitter.z = cos(t + u_time.y + seed.x * u_ScrollJitterFrequency);
   jitter.y = cos(t * 1.2 + u_time.y + seed.x * u_ScrollJitterFrequency);
   jitter *= u_ScrollJitterIntensity;
-
-  // Curl noise - slower, smoother for smoke
   vec3 v = (seed + jitter) * 0.05 + u_time.x * 2.0;
   float d = 30.0;
   vec3 curl = vec3(curlX(v, d), curlY(v, d), curlZ(v, d)) * 15.0;
-
   return jitter + curl;
 }
 
@@ -165,15 +170,46 @@ vec3 computeDisplacement(vec3 seed, float timeOffset) {
 
 const float kRecipSquareRootOfTwo = 0.70710678;
 
+float GetParticleSizeAdjust(float birthTime) {
+  if (birthTime < 0.0) {
+    float life01 = clamp(
+      (u_time.y - abs(birthTime)) / u_GeniusParticlePreviewLifetime,
+      0.0,
+      1.0
+    );
+    return 1.0 - life01 * life01;
+  }
+  return 1.0;
+}
+
+float GetParticleHalfSize(vec3 corner, vec3 center, float birthTime) {
+  float adjust = u_isTiltInput ? GetParticleSizeAdjust(birthTime) : 1.0;
+  return length(corner - center) * kRecipSquareRootOfTwo * adjust;
+}
+
 // Given a centerpoint, up and right vectors, the particle rotation and vertex index,
 // This will create the appropriate position of a quad that faces the camera.
 vec3 recreateCorner(vec3 center, float corner, float rotation, float size) {
   float c = cos(rotation);
   float s = sin(rotation);
 
-  // Basis in camera space, which is well known.
-  vec3 up = vec3(s, c, 0);
-  vec3 right = vec3(c, -s, 0);
+  if (!u_isTiltInput) {
+    vec3 up = vec3(s, c, 0.0);
+    vec3 right = vec3(c, -s, 0.0);
+    float fUp = float(corner == 0.0 || corner == 1.0) * 2.0 - 1.0;
+    float fRight = float(corner == 0.0 || corner == 2.0) * 2.0 - 1.0;
+    center = (modelViewMatrix * vec4(center, 1.0)).xyz;
+    center += fRight * right * size;
+    center += fUp * up * size;
+    return (inverse(modelViewMatrix) * vec4(center, 1.0)).xyz;
+  }
+
+  mat4 cameraToObject = inverse(modelViewMatrix);
+  vec3 upIsh = (cameraToObject * vec4(0.0, 1.0, 0.0, 0.0)).xyz;
+  vec3 cameraPosition = (cameraToObject * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+  vec3 forward = center - cameraPosition;
+  vec3 right = normalize(cross(upIsh, forward));
+  vec3 up = normalize(cross(forward, right));
 
   // Corner diagram:
   //
@@ -184,15 +220,16 @@ vec3 recreateCorner(vec3 center, float corner, float rotation, float size) {
   //   0 . . . 1
   //
   // The top corners are corners 2 & 3
-  float fUp = float(corner == 0. || corner == 1.) * 2.0 - 1.0;
+  float fUp = float(corner == 2.0 || corner == 3.0) * 2.0 - 1.0;
 
   // The corners to the right are corners 1 & 3
-  float fRight = float(corner == 0. || corner == 2.) * 2.0 - 1.0;
+  float fRight = float(corner == 1.0 || corner == 3.0) * 2.0 - 1.0;
 
-  center = (modelViewMatrix * vec4(center, 1.0)).xyz;
-  center += fRight * right * size;
-  center += fUp * up * size;
-  return (inverse(modelViewMatrix) * vec4(center, 1.0)).xyz;
+  vec2 rotatedPosition = vec2(
+    c * fRight - s * fUp,
+    s * fRight + c * fUp
+  ) * size;
+  return center + right * rotatedPosition.x + up * rotatedPosition.y;
 }
 
 // Adjusts the vertex of a quad to make a camera-facing quad. Also optionally scales the particle if
@@ -204,7 +241,7 @@ vec4 PositionParticle(
 	float rotation) {
 
 	float corner = mod(vertexId, 4.0);
-	float size = length(vertexPos.xyz - center) * kRecipSquareRootOfTwo;
+	float size = GetParticleHalfSize(vertexPos.xyz, center, a_texcoord0.w);
 
 	// Gets the scale from the model matrix
 	float scale = modelMatrix[1][1];
@@ -221,10 +258,6 @@ vec4 GetParticlePositionLS() {
 // ---------------------------------------------------------------------------------------------- //
 
 void main() {
-  // Get particle half size from corner/center distance
-  float halfSize = length(a_position.xyz - a_normal) * kRecipSquareRootOfTwo;
-  float rotation = a_texcoord0.z;
-
   // Center is stored in a_normal (particle center)
   vec3 center = a_normal;
 
@@ -235,11 +268,17 @@ void main() {
   vec3 worldPos = (modelMatrix * pos).xyz;
   vec3 worldCenter = (modelMatrix * vec4(center, 1.0)).xyz;
 
-  // Scale seed to decimeters (Unity units) for correct noise sampling,
-  // then scale result back to meters (web units).
-  vec3 seedDecimeters = worldCenter * 10.0;
-  vec3 displacement = computeDisplacement(seedDecimeters, 1.0) * 0.1;
-  worldPos += displacement;
+  if (u_isTiltInput) {
+    // Open Brush samples this brush's curl noise after transforming the center
+    // to world space, unlike Bubbles and Embers which sample object space.
+    vec3 unityCenter = vec3(worldCenter.x, worldCenter.y, -worldCenter.z);
+    vec3 unityDisplacement = computeTiltDisplacement(unityCenter);
+    worldPos += 0.1 * vec3(
+      unityDisplacement.x, unityDisplacement.y, -unityDisplacement.z
+    );
+  } else {
+    worldPos += computeGltfDisplacement(worldCenter * 10.0, 1.0) * 0.1;
+  }
 
   gl_Position = projectionMatrix * viewMatrix * vec4(worldPos, 1.0);
   v_normal = normalize(normalMatrix * a_normal);
